@@ -1,16 +1,18 @@
 import ReleaseTransformations._
 
-organization := "com.spotify.data"
-name := "gcs-tools"
+organization := "me.lyh"
+name := "blob-tools"
 
+val awsVersion = "1.12.226"
 val gcsVersion = "hadoop3-2.1.3"
 val hadoopVersion = "3.3.0"
-val joptVersion = "5.0.4"
 val avroVersion = "1.10.1"
 val magnolifyVersion = "0.4.3"
 val parquetVersion = "1.11.1"
 val protobufVersion = "3.15.5"
 val protobufGenericVersion = "0.2.9"
+val joptVersion = "5.0.4"
+val jacksonVersion = "2.13.3"
 val commonsLangVersion = "2.6"
 
 val commonSettings = assemblySettings ++ Seq(
@@ -54,8 +56,10 @@ lazy val avroTools = project
     assembly / assemblyJarName := s"avro-tools-$avroVersion.jar",
     libraryDependencies ++= Seq(
       "org.apache.avro" % "avro-tools" % avroVersion,
+      "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
+      "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion
     )
   )
@@ -69,8 +73,10 @@ lazy val parquetCli = project
     assembly / assemblyJarName := s"parquet-cli-$parquetVersion.jar",
     libraryDependencies ++= Seq(
       "org.apache.parquet" % "parquet-cli" % parquetVersion,
+      "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
+      "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion,
       // Broken transitive from hadoop-common, fixed in 1.12.0 (PARQUET-1844)
       "commons-lang" % "commons-lang" % commonsLangVersion
@@ -87,10 +93,13 @@ lazy val protoTools = project
     libraryDependencies ++= Seq(
       "me.lyh" %% "protobuf-generic" % protobufGenericVersion,
       "net.sf.jopt-simple" % "jopt-simple" % joptVersion,
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
       "com.google.protobuf" % "protobuf-java" % protobufVersion,
       "org.apache.avro" % "avro-mapred" % avroVersion,
+      "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
+      "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion
     )
   )
@@ -106,8 +115,10 @@ lazy val magnolifyTools = project
       "net.sf.jopt-simple" % "jopt-simple" % joptVersion,
       "org.apache.avro" % "avro" % avroVersion,
       "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
+      "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
+      "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion,
       "com.spotify" %% "magnolify-tools" % magnolifyVersion
     ),

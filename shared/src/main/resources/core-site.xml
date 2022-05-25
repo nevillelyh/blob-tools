@@ -27,4 +27,14 @@
       The value provided is actually an invalid project id (starts with `_`).
     </description>
   </property>
+  <property>
+    <name>fs.s3.impl</name>
+    <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+    <description>Register S3 Hadoop filesystem</description>
+  </property>
+  <property>
+    <name>fs.s3a.aws.credentials.provider</name>
+    <value>com.amazonaws.auth.DefaultAWSCredentialsProviderChain</value>
+    <description>Register AWS credentials provider</description>
+  </property>
 </configuration>

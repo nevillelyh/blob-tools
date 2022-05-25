@@ -2,34 +2,24 @@
 
 set -euo pipefail
 
-if [ $# -ne 1 ]; then
-    echo "Usage: test.sh gs://temp/location"
-    exit 1
-fi
-
-GCS=$(mktemp --dry-run --tmpdir=$1 gcs-tools-XXXXXXXXXX)
-echo "[INFO] GCS temporary location: $GCS"
-OUT=$(mktemp --dry-run --tmpdir= gcs-tools-out-XXXXXXXXXX)
-echo "[INFO] Local temporary file: $OUT"
-
-./make-binary.sh
-
-gsutil cp test-files/* $GCS
-
 die() {
     echo "[FAIL] $*"
     echo "============================================================"
-    cat $OUT
+    cat "$out"
     echo "============================================================"
     cleanup
     exit 1
 }
 
-cleanup() {
-    echo "[INFO] Cleaning up $OUT"
-    rm $OUT
-    echo "[INFO] Cleaning up $GCS"
-    gsutil rm -r "$GCS/*"
+setup() {
+    case "$fs" in
+        gs)
+            gsutil cp test-files/* "$uri"
+            ;;
+        s3)
+            find test-files -type f -exec aws s3 cp {} "$uri/" \;
+            ;;
+    esac
 }
 
 test_cmd() {
@@ -37,25 +27,58 @@ test_cmd() {
     shift
     cmd=$*
     echo "[TEST] $cmd"
-    $cmd > $OUT 2>&1
-    grep -q "$match" $OUT || die "$cmd"
+    $cmd > "$out" 2>&1 || die "$cmd"
+    grep -q "$match" "$out" || die "$cmd"
     echo "[PASS] $cmd"
 }
 
+cleanup() {
+    echo "[INFO] Cleaning up $out"
+    rm "$out"
+    echo "[INFO] Cleaning up $uri"
+    case "$fs" in
+        gs)
+            gsutil rm -r "$uri/*"
+            ;;
+        s3)
+            aws s3 rm --recursive "$uri"
+            ;;
+    esac
+}
+
+if [ $# -ne 1 ]; then
+    echo "Usage: test.sh <[gs|s3]://temp/location>"
+    exit 1
+fi
+
+fs="$(echo "$1" | cut -d ":" -f 1)"
+if [[ "$fs" != "gs" ]] && [[ "$fs" != "s3" ]]; then
+    echo "File system not supported: $fs"
+    exit 1
+fi
+
+./make-binary.sh
+
+uri=$(mktemp --dry-run --tmpdir="$1" blob-tools-XXXXXXXXXX)
+echo "[INFO] Temporary location: $uri"
+out=$(mktemp --dry-run --tmpdir= blob-tools-out-XXXXXXXXXX)
+echo "[INFO] Local temporary file: $out"
+setup
+
 echo "============================================================"
 
-test_cmd 'AvroTools' ./bin/avro-tools getschema $GCS/test.avro
-test_cmd '"name":"user100"' ./bin/avro-tools tojson $GCS/test.avro
+test_cmd 'AvroTools' ./bin/avro-tools getschema "$uri/test.avro"
+test_cmd '"name":"user100"' ./bin/avro-tools tojson "$uri/test.avro"
 
-test_cmd 'AvroTools' ./bin/parquet-cli schema $GCS/test.parquet
-test_cmd 'AvroTools' ./bin/parquet-cli meta $GCS/test.parquet
-test_cmd '"name": "user100"' ./bin/parquet-cli cat $GCS/test.parquet
+test_cmd 'AvroTools' ./bin/parquet-cli schema "$uri/test.parquet"
+test_cmd 'AvroTools' ./bin/parquet-cli meta "$uri/test.parquet"
+test_cmd '"name": "user100"' ./bin/parquet-cli cat "$uri/test.parquet"
 
-test_cmd 'ProtoTools' ./bin/proto-tools getschema $GCS/test.protobuf.avro
-test_cmd '"name":"user100"' ./bin/proto-tools tojson $GCS/test.protobuf.avro
+test_cmd 'ProtoTools' ./bin/proto-tools getschema "$uri/test.protobuf.avro"
+test_cmd '"name":"user100"' ./bin/proto-tools tojson "$uri/test.protobuf.avro"
 
-test_cmd 'case class AvroTools' ./bin/magnolify-tools avro $GCS/test.avro
-test_cmd 'case class AvroTools' ./bin/magnolify-tools parquet $GCS/test.parquet
+test_cmd 'case class AvroTools' ./bin/magnolify-tools avro "$uri/test.avro"
+test_cmd 'case class AvroTools' ./bin/magnolify-tools parquet "$uri/test.parquet"
 
 echo "============================================================"
 
