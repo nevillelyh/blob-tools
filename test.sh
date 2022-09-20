@@ -59,9 +59,11 @@ fi
 
 ./make-binary.sh
 
-uri=$(mktemp --dry-run --tmpdir="$1" blob-tools-XXXXXXXXXX)
+prefix=$1
+ts=$(date "+%s")
+uri="$prefix/blob-tools-$ts"
 echo "[INFO] Temporary location: $uri"
-out=$(mktemp --dry-run --tmpdir= blob-tools-out-XXXXXXXXXX)
+out="/tmp/blob-tools-$ts"
 echo "[INFO] Local temporary file: $out"
 setup
 
