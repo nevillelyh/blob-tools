@@ -46,26 +46,32 @@ cleanup() {
     esac
 }
 
-if [ $# -ne 1 ]; then
+if [ $# -eq 0 ]; then
+    fs=""
+    uri=test-files
+    ts=$(date "+%s")
+    out="/tmp/blob-tools-$ts"
+    echo "[INFO] Local temporary file: $out"
+elif [ $# -eq 1 ]; then
+    fs="$(echo "$1" | cut -d ":" -f 1)"
+    if [[ "$fs" != "gs" ]] && [[ "$fs" != "s3" ]]; then
+        echo "File system not supported: $fs"
+        exit 1
+    fi
+
+    prefix=$1
+    ts=$(date "+%s")
+    uri="$prefix/blob-tools-$ts"
+    echo "[INFO] Temporary location: $uri"
+    out="/tmp/blob-tools-$ts"
+    echo "[INFO] Local temporary file: $out"
+    setup
+else
     echo "Usage: test.sh <[gs|s3]://temp/location>"
     exit 1
 fi
 
-fs="$(echo "$1" | cut -d ":" -f 1)"
-if [[ "$fs" != "gs" ]] && [[ "$fs" != "s3" ]]; then
-    echo "File system not supported: $fs"
-    exit 1
-fi
-
 ./make-binary.sh
-
-prefix=$1
-ts=$(date "+%s")
-uri="$prefix/blob-tools-$ts"
-echo "[INFO] Temporary location: $uri"
-out="/tmp/blob-tools-$ts"
-echo "[INFO] Local temporary file: $out"
-setup
 
 echo "============================================================"
 
