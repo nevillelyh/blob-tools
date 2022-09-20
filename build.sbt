@@ -8,6 +8,7 @@ val gcsVersion = "hadoop3-2.2.8"
 val hadoopVersion = "3.3.4"
 val avroVersion = "1.11.1"
 val magnolifyVersion = "0.5.1"
+val orcVersion = "1.8.0"
 val parquetVersion = "1.12.3"
 val protobufVersion = "3.21.6"
 val protobufGenericVersion = "0.2.9"
@@ -39,9 +40,8 @@ lazy val root = project
   )
   .aggregate(
     avroTools,
-    parquetCli,
-    protoTools,
-    magnolifyTools
+    orcTools,
+    parquetCli
   )
 
 lazy val shared = project
@@ -65,6 +65,23 @@ lazy val avroTools = project
   )
   .dependsOn(shared)
 
+lazy val orcTools = project
+  .in(file("orc-tools"))
+  .settings(commonSettings)
+  .settings(
+    assembly / mainClass := Some("org.apache.orc.tools.Driver"),
+    assembly / assemblyJarName := s"orc-tools-$orcVersion.jar",
+    libraryDependencies ++= Seq(
+      "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
+      "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
+      "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
+      "org.apache.orc" % "orc-tools" % orcVersion,
+      "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
+      "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion
+    )
+  )
+  .dependsOn(shared)
+
 lazy val parquetCli = project
   .in(file("parquet-cli"))
   .settings(commonSettings)
@@ -80,50 +97,6 @@ lazy val parquetCli = project
       "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion,
       // Broken transitive from hadoop-common, fixed in 1.12.0 (PARQUET-1844)
       "commons-lang" % "commons-lang" % commonsLangVersion
-    )
-  )
-  .dependsOn(shared)
-
-lazy val protoTools = project
-  .in(file("proto-tools"))
-  .settings(commonSettings)
-  .settings(
-    assembly / mainClass := Some("org.apache.avro.tool.ProtoMain"),
-    assembly / assemblyJarName := s"proto-tools-$protobufVersion.jar",
-    libraryDependencies ++= Seq(
-      "me.lyh" %% "protobuf-generic" % protobufGenericVersion,
-      "net.sf.jopt-simple" % "jopt-simple" % joptVersion,
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
-      "com.google.protobuf" % "protobuf-java" % protobufVersion,
-      "org.apache.avro" % "avro-mapred" % avroVersion,
-      "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
-      "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
-      "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
-      "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
-      "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion
-    )
-  )
-  .dependsOn(shared)
-
-lazy val magnolifyTools = project
-  .in(file("magnolify-tools"))
-  .settings(commonSettings)
-  .settings(
-    assembly / mainClass := Some("magnolify.tools.Main"),
-    assembly / assemblyJarName := s"magnolify-tools-$magnolifyVersion.jar",
-    libraryDependencies ++= Seq(
-      "net.sf.jopt-simple" % "jopt-simple" % joptVersion,
-      "org.apache.avro" % "avro" % avroVersion,
-      "org.apache.parquet" % "parquet-hadoop" % parquetVersion,
-      "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
-      "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
-      "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
-      "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
-      "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion,
-      "com.spotify" %% "magnolify-tools" % magnolifyVersion
-    ),
-    dependencyOverrides ++= Seq(
-      "com.google.guava" % "guava" % "29.0-jre"
     )
   )
   .dependsOn(shared)

@@ -6,14 +6,18 @@ Blob Tools
 
 ## Introduction:
 
-Light weight wrapper that adds [GCS](https://cloud.google.com/storage/) and [S3](https://aws.amazon.com/s3/) support to common Hadoop tools, including [avro-tools](https://mvnrepository.com/artifact/org.apache.avro/avro-tools), [parquet-cli](https://mvnrepository.com/artifact/org.apache.parquet/parquet-cli), proto-tools for [Scio](https://github.com/spotify/scio)'s Protobuf in Avro file, and magnolify-tools for [Magnolify](https://github.com/spotify/magnolify) code generation, so that they can be used from regular workstations or laptops for local development.
+Light weight wrapper that adds [GCS](https://cloud.google.com/storage/) and
+[S3](https://aws.amazon.com/s3/) support for CLIs of common file formats,
+including
+[avro-tools](https://mvnrepository.com/artifact/org.apache.avro/avro-tools),
+[orc-tools](https://mvnrepository.com/artifact/org.apache.orc/orc-tools), and
+[parquet-cli](https://mvnrepository.com/artifact/org.apache.parquet/parquet-cli).
 
 ## Build:
 
 ```
 ./make-binary.sh
 ./bin/avro-tools tojosn <file>
+./bin/orc-tools data <file>
 ./bin/parquet-cli cat <file>
-./bin/proto-cli cat <file>
-./bin/magnolify-tools cat <file>
 ```

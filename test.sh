@@ -75,18 +75,15 @@ fi
 
 echo "============================================================"
 
-test_cmd 'AvroTools' ./bin/avro-tools getschema "$uri/test.avro"
+test_cmd 'Account' ./bin/avro-tools getschema "$uri/test.avro"
 test_cmd '"name":"user100"' ./bin/avro-tools tojson "$uri/test.avro"
 
-test_cmd 'AvroTools' ./bin/parquet-cli schema "$uri/test.parquet"
-test_cmd 'AvroTools' ./bin/parquet-cli meta "$uri/test.parquet"
+test_cmd 'user99' ./bin/orc-tools meta "$uri/test.orc"
+test_cmd '"name":"user100"' ./bin/orc-tools data "$uri/test.orc"
+
+test_cmd 'Account' ./bin/parquet-cli schema "$uri/test.parquet"
+test_cmd 'Account' ./bin/parquet-cli meta "$uri/test.parquet"
 test_cmd '"name": "user100"' ./bin/parquet-cli cat "$uri/test.parquet"
-
-test_cmd 'ProtoTools' ./bin/proto-tools getschema "$uri/test.protobuf.avro"
-test_cmd '"name":"user100"' ./bin/proto-tools tojson "$uri/test.protobuf.avro"
-
-test_cmd 'case class AvroTools' ./bin/magnolify-tools avro "$uri/test.avro"
-test_cmd 'case class AvroTools' ./bin/magnolify-tools parquet "$uri/test.parquet"
 
 echo "============================================================"
 

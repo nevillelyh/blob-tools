@@ -1,0 +1,12 @@
+{
+  "type" : "record",
+  "name" : "Account",
+  "namespace" : "me.lyh",
+  "fields" : [ {
+    "name" : "id",
+    "type" : "int"
+  }, {
+    "name" : "name",
+    "type" : "string"
+  } ]
+}
