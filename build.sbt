@@ -12,7 +12,7 @@ val parquetVersion = "1.12.3"
 val commonsLangVersion = "2.6"
 
 val commonSettings = assemblySettings ++ Seq(
-  scalaVersion := "2.13.8",
+  scalaVersion := "2.13.10",
   autoScalaLibrary := false,
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 )
