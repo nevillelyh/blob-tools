@@ -3,11 +3,11 @@ import ReleaseTransformations._
 organization := "me.lyh"
 name := "blob-tools"
 
-val awsVersion = "1.12.305"
-val gcsVersion = "hadoop3-2.2.8"
+val awsVersion = "1.12.379"
+val gcsVersion = "hadoop3-2.2.10"
 val hadoopVersion = "3.3.4"
 val avroVersion = "1.11.1"
-val orcVersion = "1.8.0"
+val orcVersion = "1.8.1"
 val parquetVersion = "1.12.3"
 val commonsLangVersion = "2.6"
 
