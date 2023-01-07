@@ -7,13 +7,8 @@ val awsVersion = "1.12.305"
 val gcsVersion = "hadoop3-2.2.8"
 val hadoopVersion = "3.3.4"
 val avroVersion = "1.11.1"
-val magnolifyVersion = "0.5.1"
 val orcVersion = "1.8.0"
 val parquetVersion = "1.12.3"
-val protobufVersion = "3.21.6"
-val protobufGenericVersion = "0.2.9"
-val joptVersion = "5.0.4"
-val jacksonVersion = "2.13.4"
 val commonsLangVersion = "2.6"
 
 val commonSettings = assemblySettings ++ Seq(
