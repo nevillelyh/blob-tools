@@ -1,7 +1,7 @@
 Blob Tools
 ==========
 
-[![Build Status](https://img.shields.io/github/workflow/status/nevillelyh/blob-tools/CI)](https://github.com/nevillelyh/blob-tools/actions?query=workflow%3ACI)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/nevillelyh/blob-tools/ci.yml?branch=main)](https://github.com/nevillelyh/blob-tools/actions?query=workflow%3ACI)
 [![GitHub license](https://img.shields.io/github/license/nevillelyh/blob-tools.svg)](./LICENSE)
 
 ## Introduction:
