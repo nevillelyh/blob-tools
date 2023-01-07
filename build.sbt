@@ -35,7 +35,6 @@ lazy val avroTools = project
     libraryDependencies ++= Seq(
       "org.apache.avro" % "avro-tools" % avroVersion,
       "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
-      "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion
@@ -51,7 +50,6 @@ lazy val orcTools = project
     assembly / assemblyJarName := s"orc-tools.jar",
     libraryDependencies ++= Seq(
       "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
-      "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
       "org.apache.orc" % "orc-tools" % orcVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
@@ -69,7 +67,6 @@ lazy val parquetCli = project
     libraryDependencies ++= Seq(
       "org.apache.parquet" % "parquet-cli" % parquetVersion,
       "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
-      "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
       "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion
