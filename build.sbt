@@ -1,5 +1,3 @@
-import ReleaseTransformations._
-
 organization := "me.lyh"
 name := "blob-tools"
 
@@ -9,7 +7,6 @@ val hadoopVersion = "3.3.4"
 val avroVersion = "1.11.1"
 val orcVersion = "1.8.1"
 val parquetVersion = "1.12.3"
-val commonsLangVersion = "2.6"
 
 val commonSettings = assemblySettings ++ Seq(
   scalaVersion := "2.13.10",
@@ -19,20 +16,6 @@ val commonSettings = assemblySettings ++ Seq(
 
 lazy val root = project
   .in(file("."))
-  .settings(
-    releaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      runClean,
-      runTest,
-      setReleaseVersion,
-      commitReleaseVersion,
-      tagRelease,
-      setNextVersion,
-      commitNextVersion,
-      pushChanges
-    )
-  )
   .aggregate(
     avroTools,
     orcTools,
@@ -89,9 +72,7 @@ lazy val parquetCli = project
       "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-client" % hadoopVersion,
       "com.amazonaws" % "aws-java-sdk-s3" % awsVersion,
-      "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion,
-      // Broken transitive from hadoop-common, fixed in 1.12.0 (PARQUET-1844)
-      "commons-lang" % "commons-lang" % commonsLangVersion
+      "com.google.cloud.bigdataoss" % "gcs-connector" % gcsVersion
     )
   )
   .dependsOn(shared)
@@ -99,49 +80,46 @@ lazy val parquetCli = project
 lazy val assemblySettings = Seq(
   assembly / assemblyMergeStrategy ~= (old => {
     // avro-tools is a fat jar which includes old Guava & Hadoop classes
-    case PathList("com", "google", "common", _*)  =>
-      jarFilter("guava")(_.toString.contains("/com/google/guava/guava"))
-    case PathList("com", "google", "protobuf", _*)  =>
-      jarFilter("protobuf")(_.toString.contains("/com/google/protobuf/protobuf-java"))
-    case PathList("org", "apache", "hadoop", _*)  =>
-      jarFilter("hadoop")(_.toString.contains("/org/apache/hadoop/hadoop"))
-    case s if s.endsWith(".properties")           => MergeStrategy.filterDistinctLines
-    case s if s.endsWith("pom.xml")               => MergeStrategy.last
-    case s if s.endsWith(".class")                => MergeStrategy.last
-    case s if s.endsWith("libjansi.jnilib")       => MergeStrategy.last
-    case s if s.endsWith("jansi.dll")             => MergeStrategy.rename
-    case s if s.endsWith("libjansi.so")           => MergeStrategy.rename
-    case s if s.endsWith("libsnappyjava.jnilib")  => MergeStrategy.last
-    case s if s.endsWith("libsnappyjava.so")      => MergeStrategy.last
-    case s if s.endsWith("snappyjava_snappy.dll") => MergeStrategy.last
-    case s if s.endsWith(".dtd")                  => MergeStrategy.rename
-    case s if s.endsWith(".xsd")                  => MergeStrategy.rename
+    case PathList("com", "google", "common", _*) =>
+      jarFilter("guava")(_.organization != "org.apache.avro")
+    case PathList("org", "apache", "hadoop", _*) =>
+      jarFilter("hadoop")(_.organization != "org.apache.avro")
+    // avro-tools reads NOTICE for header
+    case PathList("META-INF", "NOTICE") =>
+      jarFilter("tools")(c => c.name == "avro-tools" || c.name == "orc-tools" || c.name == "parquet-cli")
+    // avoid protobuf-lite
+    case PathList("com", "google", "protobuf", _*) =>
+      jarFilter("protobuf")(c => c.organization == "com.google.protobuf" && c.name == "protobuf-java")
+
     case PathList("META-INF", "services", "org.apache.hadoop.fs.FileSystem") =>
       MergeStrategy.filterDistinctLines
-    case PathList("META-INF", "LICENSE")     => MergeStrategy.discard
-    case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
-    case PathList("META-INF", "INDEX.LIST")  => MergeStrategy.discard
+    case s if s.endsWith(".properties")                => MergeStrategy.filterDistinctLines
+    case s if s.endsWith("pom.xml")                    => MergeStrategy.last
+    case s if s.endsWith(".class")                     => MergeStrategy.last
+    case s if s.endsWith("libjansi.jnilib")            => MergeStrategy.last
+    case s if s.endsWith("jansi.dll")                  => MergeStrategy.rename
+    case s if s.endsWith("libjansi.so")                => MergeStrategy.rename
+    case s if s.endsWith("libsnappyjava.jnilib")       => MergeStrategy.last
+    case s if s.endsWith("libsnappyjava.so")           => MergeStrategy.last
+    case s if s.endsWith("snappyjava_snappy.dll")      => MergeStrategy.last
+    case s if s.endsWith(".dtd")                       => MergeStrategy.rename
+    case s if s.endsWith(".xsd")                       => MergeStrategy.rename
+    case PathList("META-INF", "LICENSE")               => MergeStrategy.discard
+    case PathList("META-INF", "MANIFEST.MF")           => MergeStrategy.discard
+    case PathList("META-INF", "INDEX.LIST")            => MergeStrategy.discard
     case PathList("META-INF", s) if s.endsWith(".DSA") => MergeStrategy.discard
     case PathList("META-INF", s) if s.endsWith(".RSA") => MergeStrategy.discard
     case PathList("META-INF", s) if s.endsWith(".SF")  => MergeStrategy.discard
-    case PathList("META-INF", "NOTICE")      => MergeStrategy.rename
-    case _                                   => MergeStrategy.last
+    case _                                             => MergeStrategy.last
   })
 )
 
-import sbtassembly.AssemblyUtils
 import sbtassembly.MergeStrategy
 
-def jarFilter(_name: String)(f: File => Boolean): MergeStrategy = new MergeStrategy {
-  override def name = _name
-
-  override def apply(tempDir: File, path: String, files: Seq[File]): Either[String, Seq[(File, String)]] = {
-    val filtered = files
-      .map(f => f -> AssemblyUtils.sourceOfFileForMerge(tempDir, f))
-      .filter { case (_, (jar, _, _, isJar)) =>
-        isJar && f(jar)
-      }
-    val pick = if (filtered.isEmpty) files.last else filtered.last._1
-    Right(Seq(pick -> path))
+def jarFilter(name: String)(f: Assembly.ModuleCoordinate => Boolean): MergeStrategy =
+  CustomMergeStrategy(name) { conflicts =>
+    val r = conflicts
+      .filter(_.module.exists(f))
+      .map(d => JarEntry(d.target, d.stream))
+    Right(r)
   }
-}
