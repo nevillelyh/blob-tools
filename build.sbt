@@ -31,7 +31,7 @@ lazy val avroTools = project
   .settings(commonSettings)
   .settings(
     assembly / mainClass := Some("org.apache.avro.tool.Main"),
-    assembly / assemblyJarName := s"avro-tools-$avroVersion.jar",
+    assembly / assemblyJarName := s"avro-tools.jar",
     libraryDependencies ++= Seq(
       "org.apache.avro" % "avro-tools" % avroVersion,
       "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
@@ -48,7 +48,7 @@ lazy val orcTools = project
   .settings(commonSettings)
   .settings(
     assembly / mainClass := Some("org.apache.orc.tools.Driver"),
-    assembly / assemblyJarName := s"orc-tools-$orcVersion.jar",
+    assembly / assemblyJarName := s"orc-tools.jar",
     libraryDependencies ++= Seq(
       "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,
       "org.apache.hadoop" % "hadoop-common" % hadoopVersion,
@@ -65,7 +65,7 @@ lazy val parquetCli = project
   .settings(commonSettings)
   .settings(
     assembly / mainClass := Some("org.apache.parquet.cli.Main"),
-    assembly / assemblyJarName := s"parquet-cli-$parquetVersion.jar",
+    assembly / assemblyJarName := s"parquet-cli.jar",
     libraryDependencies ++= Seq(
       "org.apache.parquet" % "parquet-cli" % parquetVersion,
       "org.apache.hadoop" % "hadoop-aws" % hadoopVersion,

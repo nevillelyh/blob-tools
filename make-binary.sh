@@ -6,9 +6,9 @@ sbt clean assembly
 
 rm -rf bin
 mkdir bin
-cp avro-tools/target/scala-*/avro-tools-*.jar \
-    orc-tools/target/scala-*/orc-tools-*.jar \
-    parquet-cli/target/scala-*/parquet-cli-*.jar \
+cp avro-tools/target/scala-2.13/avro-tools.jar \
+    orc-tools/target/scala-2.13/orc-tools.jar \
+    parquet-cli/target/scala-2.13/parquet-cli.jar \
     bin
 cp scripts/blob-tools bin
 
